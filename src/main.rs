@@ -95,6 +95,7 @@ struct Deck {
 
 impl Deck {
     fn deal(num_cards: usize) -> Deck {
+        let num_cards = if num_cards > 52 { 52 } else { num_cards };
         Deck {
             cards: Vec::from(&ALL_CARDS[0..num_cards]),
         }
