@@ -1,9 +1,9 @@
-extern crate rand;
 extern crate clap;
+extern crate rand;
 
+use clap::{App, Arg};
 use rand::{thread_rng, Rng};
 use std::time::Instant;
-use clap::{App, Arg};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 enum Suit {
@@ -95,7 +95,9 @@ struct Deck {
 
 impl Deck {
     fn deal(num_cards: usize) -> Deck {
-        Deck { cards: Vec::from(&ALL_CARDS[0..num_cards]) }
+        Deck {
+            cards: Vec::from(&ALL_CARDS[0..num_cards]),
+        }
     }
 
     fn len(&self) -> usize {
@@ -158,7 +160,11 @@ fn main() {
         )
         .get_matches();
 
-    let deck_size = matches.value_of("deck-size").unwrap_or("13").parse().expect("Deck size must be a number");
+    let deck_size = matches
+        .value_of("deck-size")
+        .unwrap_or("13")
+        .parse()
+        .expect("Deck size must be a number");
     let deck = Deck::deal(deck_size);
 
     let mut shuffler = Shuffler::new(deck, thread_rng());
@@ -176,9 +182,11 @@ fn main() {
             println!("We did it! It only took {} shuffles", shuffler.shuffles);
             break;
         } else if shuffler.shuffles % 10_000_000 == 0 {
-            println!("Still shuffling after {} shuffles, ~{} shuffles/sec",
-                     shuffler.shuffles,
-                     shuffler.shuffles / start.elapsed().as_secs() as u128);
+            println!(
+                "Still shuffling after {} shuffles, ~{} shuffles/sec",
+                shuffler.shuffles,
+                shuffler.shuffles / start.elapsed().as_secs() as u128
+            );
         }
     }
 }
