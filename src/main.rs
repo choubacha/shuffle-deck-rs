@@ -1,9 +1,12 @@
 extern crate clap;
 extern crate rand;
+extern crate crossbeam_channel;
 
 use clap::{App, Arg};
 use rand::thread_rng;
 use std::time::Instant;
+use crossbeam_channel as channel;
+use std::thread;
 
 mod deck;
 
@@ -14,9 +17,17 @@ fn main() {
             Arg::with_name("deck-size")
                 .takes_value(true)
                 .short("s")
-                .long("size")
+                .long("deck-size")
                 .default_value("13")
                 .help("The size of the deck to start with")
+        )
+        .arg(
+            Arg::with_name("threads")
+                .takes_value(true)
+                .short("t")
+                .long("threads")
+                .default_value("3")
+                .help("The number of threads to use for shuffling.")
         )
         .get_matches();
 
@@ -27,25 +38,45 @@ fn main() {
         .expect("Deck size must be a number");
     let deck = deck::Deck::deal(deck_size);
 
-    let mut shuffler = deck::Shuffler::new(deck, thread_rng());
+    let threads = matches
+        .value_of("threads")
+        .unwrap_or("3")
+        .parse()
+        .expect("A valid integer.");
 
-    println!("Beginning to shuffle {} cards", shuffler.len());
+    let (s, r) = channel::bounded(1024);
+
+    println!("Beginning to shuffle {} cards on {} threads", deck.len(), threads);
 
     let start = Instant::now();
 
-    loop {
-        let shuffles = shuffler.shuffle();
+    for _ in 0..threads {
+        let deck = deck.clone();
+        let s = s.clone();
+        thread::spawn(move || {
+            let mut shuffler = deck::Shuffler::new(deck, thread_rng());
 
-        if shuffler.deck_matches_original() {
+            loop {
+                let _ = shuffler.shuffle();
+                s.send(shuffler.shuffled().clone())
+            }
+        });
+    }
+
+    let mut shuffles = 0u128;
+
+    while let Some(shuffled) = r.recv() {
+        shuffles += 1;
+
+        if shuffled == deck {
             println!("We did it! It only took {} shuffles", shuffles);
             break;
-        } else if shuffler.shuffles() % 10_000_000 == 0 {
+        } else if shuffles % 10_000_000 == 0 {
             println!(
-                "Still shuffling...\n\
-                at ~{} shuffles/sec\n\
-                {}",
+                "{} shuffles later...\n\
+                at ~{} shuffles/sec",
+                shuffles,
                 shuffles / start.elapsed().as_secs() as u128,
-                shuffler,
             );
         }
     }

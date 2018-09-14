@@ -170,7 +170,7 @@ mod deck_tests {
 
 pub struct Shuffler<R: Rng> {
     original: Deck,
-    shuffle: Deck,
+    shuffled: Deck,
     rng: R,
     shuffles: u128,
 }
@@ -178,21 +178,29 @@ pub struct Shuffler<R: Rng> {
 impl<R: Rng> Shuffler<R> {
     pub fn new(deck: Deck, rng: R) -> Shuffler<R> {
         Shuffler {
-            shuffle: deck.clone(),
+            shuffled: deck.clone(),
             original: deck,
             rng,
             shuffles: 0,
         }
     }
 
+    pub fn original(&self) -> &Deck {
+        &self.original
+    }
+
+    pub fn shuffled(&self) -> &Deck {
+        &self.shuffled
+    }
+
     pub fn shuffle(&mut self) -> u128 {
-        self.rng.shuffle(&mut self.shuffle.cards);
+        self.rng.shuffle(&mut self.shuffled.cards);
         self.shuffles += 1;
         self.shuffles
     }
 
     pub fn deck_matches_original(&self) -> bool {
-        self.shuffle == self.original
+        self.shuffled == self.original
     }
 
     pub fn shuffles(&self) -> u128 {
@@ -206,9 +214,9 @@ impl<R: Rng> Shuffler<R> {
 
 impl<R: Rng> fmt::Display for Shuffler<R> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "cards:        {}", self.original)?;
-        writeln!(f, "last shuffle: {}", self.shuffle)?;
-        writeln!(f, "shuffles:     {}", self.shuffles)?;
+        writeln!(f, "cards:    {}", self.original)?;
+        writeln!(f, "shuffled: {}", self.shuffled)?;
+        writeln!(f, "shuffles: {}", self.shuffles)?;
         Ok(())
     }
 }
@@ -223,9 +231,9 @@ mod shuffler_tests {
         let shuffler = Shuffler::new(Deck::deal(3), thread_rng());
         assert_eq!(
             format!("{}", shuffler),
-            "cards:        [CA, C2, C3]\n\
-            last shuffle: [CA, C2, C3]\n\
-            shuffles:     0\n");
+            "cards:   [CA, C2, C3]\n\
+            shuffled: [CA, C2, C3]\n\
+            shuffles: 0\n");
     }
 
     #[test]
