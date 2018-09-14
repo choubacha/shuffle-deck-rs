@@ -77,8 +77,7 @@ fn main() {
             break;
         } else if shuffles % 10_000_000 == 0 {
             println!(
-                "{} shuffles later...\n\
-                 at ~{} shuffles/sec",
+                "{} shuffles later... at ~{} shuffles/sec",
                 shuffles,
                 shuffles / start.elapsed().as_secs() as u128,
             );
