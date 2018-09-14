@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  rust:
+    build:
+      context: .
+    command: cargo build --target=armv7-unknown-linux-gnueabihf --release
+    volumes:
+      - ".:/code"
