@@ -172,7 +172,6 @@ pub struct Shuffler<R: Rng> {
     original: Deck,
     shuffled: Deck,
     rng: R,
-    shuffles: u128,
 }
 
 impl<R: Rng> Shuffler<R> {
@@ -181,34 +180,15 @@ impl<R: Rng> Shuffler<R> {
             shuffled: deck.clone(),
             original: deck,
             rng,
-            shuffles: 0,
         }
-    }
-
-    pub fn original(&self) -> &Deck {
-        &self.original
     }
 
     pub fn shuffled(&self) -> &Deck {
         &self.shuffled
     }
 
-    pub fn shuffle(&mut self) -> u128 {
+    pub fn shuffle(&mut self) {
         self.rng.shuffle(&mut self.shuffled.cards);
-        self.shuffles += 1;
-        self.shuffles
-    }
-
-    pub fn deck_matches_original(&self) -> bool {
-        self.shuffled == self.original
-    }
-
-    pub fn shuffles(&self) -> u128 {
-        self.shuffles
-    }
-
-    pub fn len(&self) -> usize {
-        self.original.len()
     }
 }
 
@@ -216,7 +196,6 @@ impl<R: Rng> fmt::Display for Shuffler<R> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "cards:    {}", self.original)?;
         writeln!(f, "shuffled: {}", self.shuffled)?;
-        writeln!(f, "shuffles: {}", self.shuffles)?;
         Ok(())
     }
 }
@@ -231,16 +210,15 @@ mod shuffler_tests {
         let shuffler = Shuffler::new(Deck::deal(3), thread_rng());
         assert_eq!(
             format!("{}", shuffler),
-            "cards:   [CA, C2, C3]\n\
-            shuffled: [CA, C2, C3]\n\
-            shuffles: 0\n");
+            "cards:    [CA, C2, C3]\n\
+            shuffled: [CA, C2, C3]\n");
     }
 
     #[test]
-    fn knows_about_whether_we_match() {
-        let shuffler = Shuffler::new(Deck::deal(52), thread_rng());
-        assert!(shuffler.deck_matches_original());
+    fn shuffles_the_deck() {
+        let mut shuffler = Shuffler::new(Deck::deal(52), thread_rng());
+        assert_eq!(shuffler.shuffled, shuffler.original);
         shuffler.shuffle(); // The odds of this matching are astronomical.
-        assert!(!shuffler.deck_matches_original());
+        assert_ne!(shuffler.shuffled, shuffler.original);
     }
 }

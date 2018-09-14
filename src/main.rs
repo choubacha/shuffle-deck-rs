@@ -57,7 +57,7 @@ fn main() {
             let mut shuffler = deck::Shuffler::new(deck, thread_rng());
 
             loop {
-                let _ = shuffler.shuffle();
+                shuffler.shuffle();
                 s.send(shuffler.shuffled().clone())
             }
         });
