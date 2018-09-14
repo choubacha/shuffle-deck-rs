@@ -76,10 +76,12 @@ fn main() {
             println!("We did it! It only took {} shuffles", shuffles);
             break;
         } else if shuffles % 10_000_000 == 0 {
+            let elapsed = start.elapsed();
             println!(
                 "{} shuffles later... at ~{} shuffles/sec",
                 shuffles,
-                shuffles / start.elapsed().as_secs() as u128,
+                1_000 * shuffles
+                    / (elapsed.as_secs() * 1_000 + elapsed.subsec_millis() as u64) as u128,
             );
         }
     }
