@@ -1,12 +1,12 @@
 extern crate clap;
-extern crate rand;
 extern crate crossbeam_channel;
+extern crate rand;
 
 use clap::{App, Arg};
-use rand::thread_rng;
-use std::time::Instant;
 use crossbeam_channel as channel;
+use rand::thread_rng;
 use std::thread;
+use std::time::Instant;
 
 mod deck;
 
@@ -46,7 +46,11 @@ fn main() {
 
     let (s, r) = channel::bounded(1024);
 
-    println!("Beginning to shuffle {} cards on {} threads", deck.len(), threads);
+    println!(
+        "Beginning to shuffle {} cards on {} threads",
+        deck.len(),
+        threads
+    );
 
     let start = Instant::now();
 
@@ -74,7 +78,7 @@ fn main() {
         } else if shuffles % 10_000_000 == 0 {
             println!(
                 "{} shuffles later...\n\
-                at ~{} shuffles/sec",
+                 at ~{} shuffles/sec",
                 shuffles,
                 shuffles / start.elapsed().as_secs() as u128,
             );

@@ -143,8 +143,10 @@ impl Deck {
 
 impl fmt::Display for Deck {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let cards = self.cards
-            .iter().map(|c| { format!("{}", c) })
+        let cards = self
+            .cards
+            .iter()
+            .map(|c| format!("{}", c))
             .collect::<Vec<String>>()
             .as_slice()
             .join(", ");
@@ -202,8 +204,8 @@ impl<R: Rng> fmt::Display for Shuffler<R> {
 
 #[cfg(test)]
 mod shuffler_tests {
-    use rand::thread_rng;
     use super::*;
+    use rand::thread_rng;
 
     #[test]
     fn displays_self() {
@@ -211,7 +213,8 @@ mod shuffler_tests {
         assert_eq!(
             format!("{}", shuffler),
             "cards:    [CA, C2, C3]\n\
-            shuffled: [CA, C2, C3]\n");
+             shuffled: [CA, C2, C3]\n"
+        );
     }
 
     #[test]
